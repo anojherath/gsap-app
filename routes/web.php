@@ -21,3 +21,15 @@ Route::middleware('auth')->group(function () {
     Route::view('/harvest-buyer/dashboard', 'dashboards.harvest_buyer')->name('dashboard.harvest_buyer');
 });
 
+// Admin subroutes
+Route::prefix('admin')->middleware('auth')->group(function () {
+    Route::get('/user-registration', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.user_registration');
+    Route::get('/reports', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports');
+    Route::get('/push-notification', [App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('admin.push_notification');
+});
+
+Route::prefix('admin')->middleware('auth')->group(function () {
+    Route::get('/user-registration', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.user_registration');
+    Route::post('/user-registration', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('admin.user_registration.store');
+    // ... other routes
+});

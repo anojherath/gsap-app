@@ -23,9 +23,10 @@
 
         <!-- Navigation -->
         <nav class="flex flex-col space-y-4 text-sm">
-            <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">User Registration</a>
-            <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Reports</a>
-            <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Push Notification</a>
+            <a href="{{ route('admin.user_registration') }}" class="hover:bg-teal-800 px-3 py-2 rounded">User Registration</a>
+            <a href="{{ route('admin.reports') }}" class="hover:bg-teal-800 px-3 py-2 rounded">Reports</a>
+            <a href="{{ route('admin.push_notification') }}" class="hover:bg-teal-800 px-3 py-2 rounded">Push Notification</a>
+
         </nav>
     </aside>
 
@@ -52,8 +53,7 @@
 
         <!-- Dashboard Content -->
         <main class="flex-1 bg-white p-6">
-            <h1 class="text-2xl font-semibold text-gray-800 mb-4">Welcome, Administrator</h1>
-            <p class="text-gray-600">This is your dashboard overview. Choose an option from the left.</p>
+            @yield('content')
         </main>
     </div>
 

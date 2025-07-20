@@ -3,117 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <title>Green Sun Agri Products</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Arial', sans-serif;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
         }
 
         body {
-            height: 100vh;
-            display: flex;
-            flex-direction: row;
+            background: url('{{ asset("images/login.avif") }}') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            color: white;
         }
 
-        .left-panel {
-            width: 50%;
-            background-color: white;
-            padding: 60px;
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .top-left-logo {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            z-index: 3;
+        }
+
+        .top-left-logo img {
+            width: 80px;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .company-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            padding: 0 5%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .left-content {
+            max-width: 45%;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        .right-panel {
-            width: 50%;
-            background-color: #a78bfa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .brand {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 40px;
-        }
-
-        h2 {
-            font-size: 28px;
+        .headline {
+            font-size: 48px;
+            font-weight: 800;
+            color: #f9fafb;
             margin-bottom: 10px;
         }
 
-        .subtitle {
-            margin-bottom: 30px;
-            color: #777;
+        .left-content p {
+            font-size: 16px;
+            line-height: 1.4;
+            color: #d1d5db;
         }
 
-        form {
-            max-width: 350px;
+        .form-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 360px;
+            width: 100%;
+            color: #111827;
+        }
+
+        .form-wrapper h2 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 22px;
         }
 
         label {
             display: block;
-            margin: 10px 0 5px;
+            margin-bottom: 5px;
+            font-weight: 500;
         }
 
-        input[type="text"], input[type="password"] {
+        input[type="text"],
+        input[type="password"] {
             width: 100%;
             padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
-
-        .actions input[type="checkbox"] {
-            margin-right: 5px;
-        }
-
-        .actions a {
-            color: #6b21a8;
-            text-decoration: none;
+            margin-bottom: 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
         }
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background-color: #6b21a8;
             color: white;
             font-weight: bold;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            margin-bottom: 15px;
-        }
-
-        .google-signin {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: white;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .signup {
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        .signup a {
-            color: #6b21a8;
-            text-decoration: none;
         }
 
         .error {
@@ -122,60 +132,80 @@
             margin-bottom: 10px;
         }
 
-        .illustration {
-            max-width: 80%;
-            height: auto;
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                gap: 40px;
+            }
+
+            .left-content {
+                max-width: 100%;
+                align-items: center;
+            }
+
+            .form-wrapper {
+                max-width: 90%;
+            }
+
+            .headline {
+                font-size: 36px;
+            }
+
+            .top-left-logo {
+                align-items: center;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                text-align: center;
+            }
+
+            .company-name {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="overlay"></div>
 
-    <div class="left-panel">
-        <div class="brand">Green Sun Agri Products</div>
-
-        <h2>Welcome back</h2>
-        <div class="subtitle">Please enter your details</div>
-
-        @if($errors->any())
-            <div class="error">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <label for="nic">NIC</label>
-            <input type="text" id="nic" name="nic" required>
-
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-
-            <div class="actions">
-                <label><input type="checkbox" name="remember"> Remember for 30 days</label>
-                <a href="#">Forgot password?</a>
-            </div>
-
-            <button type="submit">Sign in</button>
-
-            <div class="google-signin">
-                <img src="https://developers.google.com/identity/images/g-logo.avif" alt="G" style="height: 16px; vertical-align: middle; margin-right: 8px;">
-                Sign in with Google
-            </div>
-
-            <div class="signup">
-                Don't have an account? <a href="#">Sign up</a>
-            </div>
-        </form>
+    <!-- Logo and Company Name in Top Left -->
+    <div class="top-left-logo">
+        <img src="{{ asset('images/logo.jpg') }}" alt="Logo">
+        <div class="company-name">Green Sun Agri Products</div>
     </div>
 
-    <div class="right-panel">
-        <img src="{{ asset('images/login-illustration.avif') }}" alt="Login Illustration" class="illustration">
-    </div>
+    <div class="container">
+        <div class="left-content">
+            <div class="headline">Welcome Back</div>
+            <p>Please enter your login details</p>
+        </div>
 
+        <div class="form-wrapper">
+            <h2>Sign in</h2>
+
+            @if($errors->any())
+                <div class="error">
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+                <label for="nic">NIC</label>
+                <input type="text" id="nic" name="nic" required>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">Sign in</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
