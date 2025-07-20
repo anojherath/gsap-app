@@ -22,18 +22,34 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::where('nic', $request->nic)->first();
+        $user = User::with('userType')->where('nic', $request->nic)->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
-            // Login success
             Auth::login($user);
-            return redirect()->intended('/dashboard');
+
+            $userType = strtolower($user->userType->user_type);
+
+            switch ($userType) {
+                case 'admin':
+                    return redirect()->route('dashboard.admin');
+                case 'farmer':
+                    return redirect()->route('dashboard.farmer');
+                case 'seed provider':
+                    return redirect()->route('dashboard.seed_provider');
+                case 'fertilizer provider':
+                    return redirect()->route('dashboard.fertilizer_provider');
+                case 'agro-chemical provider':
+                    return redirect()->route('dashboard.agro_chemical_provider');
+                case 'harvest buyer':
+                    return redirect()->route('dashboard.harvest_buyer');
+                default:
+                    Auth::logout();
+                    return redirect('/login')->withErrors(['user_type' => 'Unauthorized user type']);
+            }
         }
 
-        return back()->withErrors([
-            'nic' => 'Invalid NIC or password.',
-        ]);
-    }
+        return back()->withErrors(['nic' => 'Invalid NIC or password.']);
+    }    
 
     public function logout()
     {

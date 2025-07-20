@@ -24,4 +24,8 @@ class User extends Authenticatable
     'password'
     ];
 
+    public function userType()
+    {
+        return $this->belongsTo(UserType::class, 'user_type_id');
+    }
 }
