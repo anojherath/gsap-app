@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\SeedOrderController;
 
 // Public routes
 Route::get('/', function () {
@@ -45,4 +46,15 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // Notification management routes
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+});
+
+    Route::middleware('auth')->group(function () {
+    Route::get('/seed-provider/seed-orders', [SeedOrderController::class, 'index'])->name('seed_orders.index');
+    Route::get('/seed-provider/seed-orders/create', [SeedOrderController::class, 'create'])->name('seed_orders.create');
+    Route::post('/seed-provider/seed-orders', [SeedOrderController::class, 'store'])->name('seed_orders.store');
+    Route::get('/seed-orders/rejected', [SeedOrderController::class, 'rejected'])->name('seed_orders.rejected');
+    Route::get('/seed-orders/{id}/edit', [SeedOrderController::class, 'edit'])->name('seed_orders.edit');
+    Route::put('/seed-orders/{id}', [SeedOrderController::class, 'update'])->name('seed_orders.update');
+    Route::delete('/seed-orders/{id}', [SeedOrderController::class, 'destroy'])->name('seed_orders.destroy');
+    Route::put('/seed_orders/{id}/resend', [SeedOrderController::class, 'update'])->name('seed_orders.resend');
 });

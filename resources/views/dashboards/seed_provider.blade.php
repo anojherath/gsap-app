@@ -20,8 +20,7 @@
 
         <!-- Navigation -->
         <nav class="flex flex-col space-y-4 text-sm">
-            <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Seed Order</a>
-            <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Harvest Order</a>
+            <a href="{{ route('seed_orders.index') }}" class="hover:bg-teal-800 px-3 py-2 rounded">Seed Order</a>
             <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Reports</a>
         </nav>
     </aside>
@@ -154,8 +153,7 @@
 
         <!-- Dashboard Content -->
         <main class="flex-1 bg-white p-6">
-            <h1 class="text-2xl font-semibold text-gray-800 mb-4">Welcome, Seed Provider</h1>
-            <p class="text-gray-600">This is your dashboard overview. Choose an option from the left.</p>
+            @yield('content')
         </main>
     </div>
 

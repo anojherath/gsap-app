@@ -96,7 +96,7 @@
             {{ isset($user) ? 'Update User' : 'Register User' }}
         </button>
 
-        <a href="{{ route('admin.user_registration') }}" class="text-sm text-gray-600 hover:underline">Back to User List</a>
+        <a href="{{ route('admin.user_registration') }}" class="text-sm text-gray-600 hover:underline">Back</a>
     </div>
 </form>
 @endsection
