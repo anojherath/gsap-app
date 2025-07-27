@@ -3,16 +3,30 @@
 @section('content')
     <h2 class="text-xl font-bold mb-4">Received Seed Orders</h2>
 
+    <!-- Search Bar -->
+    <form method="GET" action="{{ route('farmer.seed_orders.index') }}" class="flex items-center mb-4 space-x-2">
+        <input
+            type="text"
+            name="search"
+            value="{{ request('search') }}"
+            placeholder="Search by paddy type, quantity, provider..."
+            class="border rounded px-3 py-2 w-1/3"
+        />
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            Search
+        </button>
+    </form>
+
     @if($seedOrders->count())
         <table class="w-full table-auto border">
             <thead>
                 <tr class="bg-gray-100">
                     <th class="border px-4 py-2">Paddy Type</th>
                     <th class="border px-4 py-2">Quantity</th>
-                    <th class="border px-4 py-2">Purchased From</th>
+                    <th class="border px-4 py-2">Provider</th>
                     <th class="border px-4 py-2">Date</th>
                     <th class="border px-4 py-2">Status</th>
-                    <th class="border px-4 py-2">Actions</th> <!-- New column -->
+                    <th class="border px-4 py-2">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,7 +46,7 @@
                             @endif
                         </td>
                         <td class="border px-4 py-2">
-                            @if (!isset($order->farmer_confirmed) || $order->farmer_confirmed === null)  {{-- Show buttons only if pending --}}
+                            @if (!isset($order->farmer_confirmed) || $order->farmer_confirmed === null)
                                 <form action="{{ route('farmer.seed_orders.confirm', $order->id) }}" method="POST" class="inline-block">
                                     @csrf
                                     <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
@@ -57,7 +71,7 @@
 
         <!-- Pagination -->
         <div class="mt-4">
-            {{ $seedOrders->links() }}
+            {{ $seedOrders->appends(['search' => request('search')])->links() }}
         </div>
     @else
         <p>No seed orders found.</p>

@@ -67,7 +67,7 @@ Route::middleware('auth')->prefix('seed-provider')->group(function () {
 });
 
 // ------------------------------
-// Farmer Seed Orders Routes
+// Farmer Seed Order Routes
 // ------------------------------
 Route::middleware('auth')->prefix('farmer')->group(function () {
     Route::get('/seed-orders', [FarmerSeedOrderController::class, 'index'])->name('farmer.seed_orders.index');

@@ -66,7 +66,7 @@ class SeedOrderController extends Controller
             'paddy_id' => $request->paddy_id,
             'qty' => $request->qty,
             'creation_date' => Carbon::now(),
-            //'farmer_confirmed' => null,
+            'farmer_confirmed' => null,
         ]);
 
         return redirect()->route('seed_orders.index')->with('success', 'Order placed successfully.');
@@ -83,22 +83,21 @@ class SeedOrderController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
             'paddy_id' => 'required|exists:paddy,id',
+            'user_id' => 'required|exists:users,id',
             'qty' => 'required|integer|min:1',
         ]);
 
         $order = SeedOrder::findOrFail($id);
-        $order->update([
-            'user_id' => $request->user_id,
-            'seed_provider_id' => Auth::id(), // ✅ Update seed provider ID
-            'paddy_id' => $request->paddy_id,
-            'qty' => $request->qty,
-            'creation_date' => Carbon::now(),
-            //'farmer_confirmed' => false,
-        ]);
 
-        return redirect()->route('seed_orders.rejected')->with('success', 'Order resent successfully.');
+        $order->paddy_id = $request->paddy_id;
+        $order->user_id = $request->user_id;
+        $order->qty = $request->qty;
+        $order->creation_date = now(); // optional: update date
+        $order->farmer_confirmed = null; // reset confirmation
+        $order->save();
+
+        return redirect()->route('seed_orders.rejected')->with('success', 'Order resubmitted successfully.');
     }
 
     public function destroy($id)
