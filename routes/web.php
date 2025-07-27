@@ -6,8 +6,11 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\SeedOrderController;
+use App\Http\Controllers\Farmer\SeedOrderController as FarmerSeedOrderController;
 
-// Public routes
+// ------------------------------
+// Public Routes
+// ------------------------------
 Route::get('/', function () {
     return view('welcome');
 });
@@ -16,7 +19,9 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Dashboard routes by role
+// ------------------------------
+// Role-based Dashboards
+// ------------------------------
 Route::middleware('auth')->group(function () {
     Route::view('/admin/dashboard', 'dashboards.admin')->name('dashboard.admin');
     Route::view('/farmer/dashboard', 'dashboards.farmer')->name('dashboard.farmer');
@@ -26,9 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::view('/harvest-buyer/dashboard', 'dashboards.harvest_buyer')->name('dashboard.harvest_buyer');
 });
 
-// Admin routes
+// ------------------------------
+// Admin Routes
+// ------------------------------
 Route::prefix('admin')->middleware('auth')->group(function () {
-    // User registration
+    // User Registration
     Route::get('/user-registration', [UserController::class, 'index'])->name('admin.user_registration');
     Route::get('/user-registration/create', [UserController::class, 'create'])->name('admin.user_registration.create');
     Route::post('/user-registration', [UserController::class, 'store'])->name('admin.user_registration.store');
@@ -39,22 +46,31 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
 
-    // Push notifications
+    // Notifications
     Route::get('/push-notification', [NotificationController::class, 'index'])->name('admin.push_notification');
     Route::post('/push-notification', [NotificationController::class, 'send'])->name('admin.push_notification.send');
-
-    // Notification management routes
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 });
 
-    Route::middleware('auth')->group(function () {
-    Route::get('/seed-provider/seed-orders', [SeedOrderController::class, 'index'])->name('seed_orders.index');
-    Route::get('/seed-provider/seed-orders/create', [SeedOrderController::class, 'create'])->name('seed_orders.create');
-    Route::post('/seed-provider/seed-orders', [SeedOrderController::class, 'store'])->name('seed_orders.store');
+// ------------------------------
+// Seed Provider Seed Order Routes
+// ------------------------------
+Route::middleware('auth')->prefix('seed-provider')->group(function () {
+    Route::get('/seed-orders', [SeedOrderController::class, 'index'])->name('seed_orders.index');
+    Route::get('/seed-orders/create', [SeedOrderController::class, 'create'])->name('seed_orders.create');
+    Route::post('/seed-orders', [SeedOrderController::class, 'store'])->name('seed_orders.store');
     Route::get('/seed-orders/rejected', [SeedOrderController::class, 'rejected'])->name('seed_orders.rejected');
     Route::get('/seed-orders/{id}/edit', [SeedOrderController::class, 'edit'])->name('seed_orders.edit');
     Route::put('/seed-orders/{id}', [SeedOrderController::class, 'update'])->name('seed_orders.update');
     Route::delete('/seed-orders/{id}', [SeedOrderController::class, 'destroy'])->name('seed_orders.destroy');
-    Route::put('/seed_orders/{id}/resend', [SeedOrderController::class, 'update'])->name('seed_orders.resend');
+});
+
+// ------------------------------
+// Farmer Seed Orders Routes
+// ------------------------------
+Route::middleware('auth')->prefix('farmer')->group(function () {
+    Route::get('/seed-orders', [FarmerSeedOrderController::class, 'index'])->name('farmer.seed_orders.index');
+    Route::post('/seed-orders/{id}/confirm', [FarmerSeedOrderController::class, 'confirm'])->name('farmer.seed_orders.confirm');
+    Route::post('/seed-orders/{id}/reject', [FarmerSeedOrderController::class, 'reject'])->name('farmer.seed_orders.reject');
 });

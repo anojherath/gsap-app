@@ -40,7 +40,7 @@ class SeedOrderController extends Controller
         $rejectedOrders = SeedOrder::with(['user', 'paddy'])
             ->where('farmer_confirmed', 0)
             ->latest()
-            ->paginate(10); // Use paginate here
+            ->paginate(10);
 
         return view('seed_provider.seed_orders.rejected', compact('rejectedOrders'));
     }
@@ -62,10 +62,11 @@ class SeedOrderController extends Controller
 
         SeedOrder::create([
             'user_id' => $request->user_id,
+            'seed_provider_id' => Auth::id(), // ✅ Add logged-in seed provider ID
             'paddy_id' => $request->paddy_id,
             'qty' => $request->qty,
             'creation_date' => Carbon::now(),
-            'farmer_confirmed' => false,
+            //'farmer_confirmed' => null,
         ]);
 
         return redirect()->route('seed_orders.index')->with('success', 'Order placed successfully.');
@@ -90,10 +91,11 @@ class SeedOrderController extends Controller
         $order = SeedOrder::findOrFail($id);
         $order->update([
             'user_id' => $request->user_id,
+            'seed_provider_id' => Auth::id(), // ✅ Update seed provider ID
             'paddy_id' => $request->paddy_id,
             'qty' => $request->qty,
             'creation_date' => Carbon::now(),
-            'farmer_confirmed' => false, // Reset to pending when resent
+            //'farmer_confirmed' => false,
         ]);
 
         return redirect()->route('seed_orders.rejected')->with('success', 'Order resent successfully.');

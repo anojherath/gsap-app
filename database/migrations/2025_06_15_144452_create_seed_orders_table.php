@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->integer('qty');
             $table->dateTime('creation_date');
-            $table->boolean('farmer_confirmed')->default(false);
+            $table->boolean('farmer_confirmed')->nullable()->default(null);
             $table->timestamps();
         });
 
