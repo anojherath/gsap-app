@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('type'); // Type of fertiliser
             $table->integer('qty'); // Quantity
             $table->dateTime('creation_date'); // Explicit creation date
-            $table->boolean('farmer_confirmed')->default(false); // Boolean, defaults to false
+            $table->boolean('farmer_confirmed')->nullable()->default(null);
+            $table->timestamps();
 
             // Optional: If you want Laravel's default timestamps too
             // $table->timestamps(); 
