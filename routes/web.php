@@ -40,6 +40,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
+    Route::get('/reports/users', [ReportController::class, 'userReport'])->name('admin.reports.users');
+    Route::get('/reports/users/export/excel', [ReportController::class, 'exportExcel'])->name('admin.reports.users.export.excel');
+    Route::get('/reports/users/export/pdf', [ReportController::class, 'exportPDF'])->name('admin.reports.users.export.pdf');
+
 
     // Notifications
     Route::get('/push-notification', [NotificationController::class, 'index'])->name('admin.push_notification');

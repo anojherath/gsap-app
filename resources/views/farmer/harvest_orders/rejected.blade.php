@@ -5,7 +5,7 @@
     <h2 class="text-2xl font-bold mb-4">Rejected Harvest Orders</h2>
 
     <a href="{{ route('farmer.harvest_orders.index') }}" class="text-sm text-gray-600 hover:underline mb-4 inline-block">
-        Back to Harvest Orders
+        Back
     </a>
 
     @if(session('success'))
