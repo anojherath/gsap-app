@@ -6,7 +6,7 @@
     <h2 class="text-2xl font-semibold mb-2">User Report</h2>
 
     <!-- Back Link -->
-    <a href="{{ url()->previous() }}" class="text-sm text-gray-600 hover:underline mb-4 inline-block">
+    <a href="{{ route('admin.reports') }}" class="text-sm text-gray-600 hover:underline mb-4 inline-block">
         Back
     </a>
 

@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Exports\UsersExport;
+use App\Exports\CustomerReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -56,5 +58,61 @@ class ReportController extends Controller
 
         $pdf = PDF::loadView('admin.reports.user_report_pdf', compact('users'));
         return $pdf->download('user_report.pdf');
+    }
+
+    /**
+     * Display the customer report based on your SQL logic
+     */
+    public function customerReport(Request $request)
+    {
+        // Paginate 10 per page
+        $results = DB::table('harvest as h')
+            ->leftJoin('paddy as p', 'h.paddy_id', '=', 'p.id')
+            ->leftJoin('seed_orders as so', 'p.id', '=', 'so.paddy_id')
+            ->leftJoin('users as u', 'so.user_id', '=', 'u.id')
+            ->leftJoin('fertiliser_order as fo', 'u.id', '=', 'fo.user_id')
+            ->select(
+                'p.type as harvest_type',
+                'h.creation_date as harvest_date',
+                'u.address as origin',
+                'so.creation_date as seed_provider_date',
+                'fo.type as fertilizer_type',
+                'fo.creation_date as fertilizer_applied_date'
+            )
+            ->paginate(10);
+
+        return view('admin.reports.customer_report', compact('results'));
+    }
+
+    /**
+     * Export the customer report to Excel
+     */
+    public function exportCustomerExcel()
+    {
+        return Excel::download(new CustomerReportExport, 'customer_report.xlsx');
+    }
+
+    /**
+     * Export the customer report to PDF
+     */
+    public function exportCustomerPDF()
+    {
+        $data = DB::table('harvest as h')
+            ->leftJoin('paddy as p', 'h.paddy_id', '=', 'p.id')
+            ->leftJoin('seed_orders as so', 'p.id', '=', 'so.paddy_id')
+            ->leftJoin('users as u', 'so.user_id', '=', 'u.id')
+            ->leftJoin('fertiliser_order as fo', 'u.id', '=', 'fo.user_id')
+            ->select(
+                'p.type as harvest_type',
+                'h.creation_date as harvest_date',
+                'u.address as origin',
+                'so.creation_date as seed_provider_date',
+                'fo.type as fertilizer_type',
+                'fo.creation_date as fertilizer_applied_date'
+            )
+            ->get();
+
+        $pdf = PDF::loadView('admin.reports.customer_report_pdf', compact('data'));
+        return $pdf->download('customer_report.pdf');
     }
 }

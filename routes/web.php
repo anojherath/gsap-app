@@ -43,7 +43,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/reports/users', [ReportController::class, 'userReport'])->name('admin.reports.users');
     Route::get('/reports/users/export/excel', [ReportController::class, 'exportExcel'])->name('admin.reports.users.export.excel');
     Route::get('/reports/users/export/pdf', [ReportController::class, 'exportPDF'])->name('admin.reports.users.export.pdf');
-
+    Route::get('/reports/customers', [ReportController::class, 'customerReport'])->name('admin.reports.customers');
+    Route::get('/reports/customers/export/excel', [ReportController::class, 'exportCustomerExcel'])->name('admin.reports.customers.export.excel');
+    Route::get('/reports/customers/export/pdf', [ReportController::class, 'exportCustomerPDF'])->name('admin.reports.customers.export.pdf');
 
     // Notifications
     Route::get('/push-notification', [NotificationController::class, 'index'])->name('admin.push_notification');
