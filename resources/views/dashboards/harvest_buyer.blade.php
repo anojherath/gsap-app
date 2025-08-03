@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Harvest Buyer Dashboard</title>
+    <title>@yield('title', 'Harvest Buyer Dashboard')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -20,7 +20,7 @@
 
         <!-- Navigation -->
         <nav class="flex flex-col space-y-4 text-sm">
-            <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Harvest Order</a>
+            <a href="{{ route('harvest_buyer.orders.index') }}" class="hover:bg-teal-800 px-3 py-2 rounded">Harvest Order</a>
             <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Reports</a>
         </nav>
     </aside>
@@ -151,10 +151,9 @@
 
         </header>
 
-        <!-- Dashboard Content -->
+        <!-- Main Content -->
         <main class="flex-1 bg-white p-6">
-            <h1 class="text-2xl font-semibold text-gray-800 mb-4">Welcome, Harvest Buyer</h1>
-            <p class="text-gray-600">This is your dashboard overview. Choose an option from the left.</p>
+            @yield('content')
         </main>
     </div>
 

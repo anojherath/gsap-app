@@ -21,9 +21,8 @@
 
         <!-- Navigation -->
         <nav class="flex flex-col space-y-4 text-sm">
-            <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Harvest Order</a>
+            <a href="{{ route('farmer.harvest_orders.index') }}" class="hover:bg-teal-800 px-3 py-2 rounded">Harvest Order</a>
             <a href="{{ route('farmer.seed_orders.index') }}" class="hover:bg-teal-800 px-3 py-2 rounded">Seed Order</a>
-            <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Agro-Chemical Order</a>
             <a href="{{ route('farmer.fertilizer_orders.index') }}" class="hover:bg-teal-800 px-3 py-2 rounded">Fertilizer Order</a>
             <a href="#" class="hover:bg-teal-800 px-3 py-2 rounded">Reports</a>
         </nav>

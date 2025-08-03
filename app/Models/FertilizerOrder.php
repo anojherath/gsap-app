@@ -43,7 +43,7 @@ class FertilizerOrder extends Model
     // The fertilizer item
     public function fertilizer()
     {
-        return $this->belongsTo(Fertilizer::class);
+        return $this->belongsTo(Fertilizer::class, 'fertilizer_id');
     }
 
     public function getFarmerConfirmedAttribute($value)
