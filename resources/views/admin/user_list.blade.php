@@ -5,12 +5,12 @@
     <form action="{{ route('admin.user_registration') }}" method="GET" class="flex space-x-2">
         <input type="text" name="search" placeholder="Search..." value="{{ $search ?? '' }}"
                class="px-4 py-2 border rounded w-64">
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button type="submit" class="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800">
             Search
         </button>
     </form>
 
-    <a href="{{ route('admin.user_registration.create') }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+    <a href="{{ route('admin.user_registration.create') }}" class="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800">
         Add User
     </a>
 </div>
@@ -23,13 +23,13 @@
 
 <div class="overflow-x-auto bg-white shadow rounded-lg mt-4">
     <table class="w-full text-left border">
-        <thead class="bg-gray-100">
+        <thead class="bg-gray-300">
             <tr>
-                <th class="px-4 py-2 border">Name</th>
-                <th class="px-4 py-2 border">NIC</th>
-                <th class="px-4 py-2 border">Mobile</th>
-                <th class="px-4 py-2 border">Type</th>
-                <th class="px-4 py-2 border">Actions</th>
+                <th class="px-4 py-2 border text-center">Name</th>
+                <th class="px-4 py-2 border text-center">NIC</th>
+                <th class="px-4 py-2 border text-center">Mobile</th>
+                <th class="px-4 py-2 border text-center">Type</th>
+                <th class="px-4 py-2 border text-center">Actions</th>
             </tr>
         </thead>
         <tbody>

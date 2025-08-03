@@ -17,7 +17,7 @@
         }
 
         body {
-            background: url('{{ asset("images/login.avif") }}') no-repeat center center fixed;
+            background: url('{{ asset("images/login.jpg") }}') no-repeat center center fixed;
             background-size: cover;
             position: relative;
             color: white;
@@ -26,7 +26,7 @@
         .overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 1;
         }
 
@@ -35,22 +35,30 @@
             top: 20px;
             left: 30px;
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+            flex-direction: row;
+            align-items: center;
             z-index: 3;
         }
 
         .top-left-logo img {
-            width: 80px;
+            width: 170px;
             height: auto;
             object-fit: contain;
-            margin-bottom: 10px;
+            margin-right: 15px;
         }
 
         .company-name {
-            font-size: 24px;
-            font-weight: 600;
-            color: #f9fafb;
+            font-size: 60px;
+            font-weight: 700;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .green {
+            color: #064e3b; /* dark green */
+        }
+
+        .sun {
+            color: #c2410c; /* dark orange */
         }
 
         .container {
@@ -75,61 +83,80 @@
         .headline {
             font-size: 48px;
             font-weight: 800;
-            color: #f9fafb;
+            color: #ffffff;
             margin-bottom: 10px;
+            text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
         }
 
         .left-content p {
-            font-size: 16px;
-            line-height: 1.4;
-            color: #d1d5db;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #dbeafe;
         }
 
         .form-wrapper {
             background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 8px;
-            max-width: 360px;
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 380px;
             width: 100%;
-            color: #111827;
+            color: #1e293b;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
         .form-wrapper h2 {
-            margin-bottom: 15px;
-            font-weight: 600;
-            font-size: 22px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-size: 24px;
+            color: #111827;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
         }
 
         input[type="text"],
         input[type="password"] {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            font-size: 15px;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
         }
 
         button {
             width: 100%;
-            padding: 10px;
-            background-color: #6b21a8;
+            padding: 12px;
+            background-color: #7c3aed;
             color: white;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 16px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #6d28d9;
         }
 
         .error {
-            color: red;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
+            color: #dc2626;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
         }
 
         @media (max-width: 768px) {
@@ -154,6 +181,7 @@
             }
 
             .top-left-logo {
+                flex-direction: column;
                 align-items: center;
                 top: 10px;
                 left: 50%;
@@ -161,8 +189,13 @@
                 text-align: center;
             }
 
+            .top-left-logo img {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
             .company-name {
-                font-size: 20px;
+                font-size: 36px;
             }
         }
     </style>
@@ -172,8 +205,10 @@
 
     <!-- Logo and Company Name in Top Left -->
     <div class="top-left-logo">
-        <img src="{{ asset('images/logo.jpg') }}" alt="Logo">
-        <div class="company-name">Green Sun Agri Products</div>
+        <img src="{{ asset('images/logo.png') }}" alt="Logo">
+        <div class="company-name">
+            <span class="green">Green</span> <span class="sun">Sun</span> <span class="green">Agri Products</span>
+        </div>
     </div>
 
     <div class="container">

@@ -15,7 +15,7 @@
     @endif
 
     <table class="w-full table-auto border border-gray-300">
-        <thead class="bg-gray-200">
+        <thead class="bg-gray-300">
             <tr>
                 <th class="px-3 py-2">Harvest Buyer</th>
                 <th class="px-3 py-2">Paddy Type</th>

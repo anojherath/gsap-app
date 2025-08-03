@@ -1,8 +1,7 @@
 @extends('dashboards.farmer')
 
 @section('content')
-<div class="p-6">
-    <h2 class="text-2xl font-bold mb-4">Harvest Orders</h2>
+    <h2 class="text-xl font-bold mb-4">Harvest Orders</h2>
 
     @if(session('success'))
         <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
@@ -10,18 +9,19 @@
         </div>
     @endif
 
+    <!-- Search & Action Buttons -->
     <div class="flex justify-between items-center mb-4">
-        <form method="GET" action="{{ route('farmer.harvest_orders.index') }}" class="flex space-x-2">
+        <form method="GET" action="{{ route('farmer.harvest_orders.index') }}" class="flex items-center space-x-2">
             <input
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
                 placeholder="Search..."
-                class="px-3 py-2 border border-gray-300 rounded-md"
+                class="border rounded px-3 py-2 w-1/3"
             />
             <button
                 type="submit"
-                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                class="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800"
             >
                 Search
             </button>
@@ -36,48 +36,60 @@
             </a>
             <a
                 href="{{ route('farmer.harvest_orders.create') }}"
-                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                class="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800"
             >
                 Add Order
             </a>
         </div>
     </div>
 
-    <table class="w-full table-auto border border-gray-300">
-        <thead class="bg-gray-200">
-            <tr>
-                <th class="px-3 py-2">Harvest Buyer</th>
-                <th class="px-3 py-2">Paddy Type</th>
-                <th class="px-3 py-2">Quantity</th>
-                <th class="px-3 py-2">Field</th>
-                <th class="px-3 py-2">Applied Fertilizer</th>
-                <th class="px-3 py-2">Date</th>
-                <th class="px-3 py-2">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($orders as $order)
-                <tr class="border-t text-center">
-                    <td class="px-3 py-2">{{ $order->buyer ? $order->buyer->first_name . ' ' . $order->buyer->last_name : '-' }}</td>
-                    <td class="px-3 py-2">{{ $order->paddy->type ?? $order->paddy->name ?? '-' }}</td>
-                    <td class="px-3 py-2">{{ $order->qty }}</td>
-                    <td class="px-3 py-2">{{ $order->field->name ?? '-' }}</td>
-                    <td class="px-3 py-2">
-                        @foreach($order->field->fertilizerOrders ?? [] as $fertilizerOrder)
-                            <div>{{ $fertilizerOrder->fertilizer->name ?? '-' }}</div>
-                        @endforeach
-                    </td>
-                    <td class="px-3 py-2">{{ $order->creation_date }}</td>
-                    <td class="px-3 py-2">{{ $order->status }}</td>
+    @if($orders->count())
+        <table class="w-full table-auto border rounded-lg overflow-hidden shadow">
+            <thead>
+                <tr class="bg-gray-300">
+                    <th class="border px-4 py-2">Harvest Buyer</th>
+                    <th class="border px-4 py-2">Paddy Type</th>
+                    <th class="border px-4 py-2">Quantity</th>
+                    <th class="border px-4 py-2">Field Name</th>
+                    <th class="border px-4 py-2">Date</th>
+                    <th class="border px-4 py-2">Status</th>
                 </tr>
-            @empty
-                <tr><td colspan="7" class="text-center py-4">No orders found.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach($orders as $order)
+                    <tr>
+                        <td class="border px-4 py-2">
+                            {{ $order->buyer ? $order->buyer->first_name . ' ' . $order->buyer->last_name : '-' }}
+                        </td>
+                        <td class="border px-4 py-2">
+                            {{ $order->paddy->type ?? $order->paddy->name ?? '-' }}
+                        </td>
+                        <td class="border px-4 py-2">{{ $order->qty }}</td>
+                        <td class="border px-4 py-2">{{ $order->field->name ?? '-' }}</td>
+                        <td class="border px-4 py-2">{{ $order->creation_date }}</td>
+                        <td class="border px-4 py-2">
+                            @php $status = strtolower($order->status); @endphp
 
-    <div class="mt-4">
-        {{ $orders->withQueryString()->links() }}
-    </div>
-</div>
+                            @if($status === 'pending' || is_null($status))
+                                <span class="text-yellow-600 font-semibold">Pending</span>
+                            @elseif($status === 'confirmed')
+                                <span class="text-green-600 font-semibold">Confirmed</span>
+                            @elseif($status === 'rejected')
+                                <span class="text-red-600 font-semibold">Rejected</span>
+                            @else
+                                <span>{{ ucfirst($order->status) }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="mt-4">
+            {{ $orders->withQueryString()->links() }}
+        </div>
+    @else
+        <p>No harvest orders found.</p>
+    @endif
 @endsection

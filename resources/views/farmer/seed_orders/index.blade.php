@@ -12,18 +12,18 @@
             placeholder="Search by paddy type, quantity, provider..."
             class="border rounded px-3 py-2 w-1/3"
         />
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <button type="submit" class="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800">
             Search
         </button>
     </form>
 
     @if($seedOrders->count())
-        <table class="w-full table-auto border">
+        <table class="w-full table-auto border rounded-lg overflow-hidden shadow">            
             <thead>
-                <tr class="bg-gray-100">
+                <tr class="bg-gray-300">
+                    <th class="border px-4 py-2">Provider</th>
                     <th class="border px-4 py-2">Paddy Type</th>
                     <th class="border px-4 py-2">Quantity</th>
-                    <th class="border px-4 py-2">Provider</th>
                     <th class="border px-4 py-2">Date</th>
                     <th class="border px-4 py-2">Status</th>
                     <th class="border px-4 py-2">Actions</th>
@@ -32,9 +32,9 @@
             <tbody>
                 @foreach($seedOrders as $order)
                     <tr>
+                        <td class="border px-4 py-2">{{ $order->seedProvider->company_name ?? 'N/A' }}</td>
                         <td class="border px-4 py-2">{{ $order->paddy->type ?? 'N/A' }}</td>
                         <td class="border px-4 py-2">{{ $order->qty }}</td>
-                        <td class="border px-4 py-2">{{ $order->seedProvider->company_name ?? 'N/A' }}</td>
                         <td class="border px-4 py-2">{{ $order->creation_date->format('Y-m-d H:i:s') }}</td>
                         <td class="border px-4 py-2">
                             @if (!isset($order->farmer_confirmed) || $order->farmer_confirmed === null)
