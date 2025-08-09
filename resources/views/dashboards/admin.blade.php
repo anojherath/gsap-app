@@ -1,3 +1,8 @@
+@php
+    use Illuminate\Support\Facades\Auth;
+    use App\Models\Notification;
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,8 +50,7 @@
                         </svg>
 
                         @php
-                            use App\Models\Notification;
-                            $unreadCount = Notification::where('user_id', auth()->id())->whereNull('read_at')->count();
+                            $unreadCount = Notification::where('user_id', Auth::id())->whereNull('read_at')->count();
                         @endphp
 
                         @if($unreadCount > 0)
@@ -61,7 +65,7 @@
                         <div class="p-4 text-sm text-gray-700 font-semibold border-b">Notifications</div>
                         <div class="divide-y divide-gray-100 text-sm">
                             @php
-                                $notifications = Notification::where('user_id', auth()->id())->latest()->take(10)->get();
+                                $notifications = Notification::where('user_id', Auth::id())->latest()->take(10)->get();
                             @endphp
 
                             @forelse($notifications as $notification)
@@ -121,4 +125,3 @@
 
 </body>
 </html>
-
