@@ -213,7 +213,7 @@
         </div>
 
         <div class="form-wrapper">
-            <h2>Customer Information</h2>
+            <h2>Product Information</h2>
 
             <dl>
                 @php
