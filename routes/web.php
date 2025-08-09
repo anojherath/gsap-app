@@ -47,6 +47,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/reports/customers/export/excel', [ReportController::class, 'exportCustomerExcel'])->name('admin.reports.customers.export.excel');
     Route::get('/reports/customers/export/pdf', [ReportController::class, 'exportCustomerPDF'])->name('admin.reports.customers.export.pdf');
 
+    // New Route for QR code detail page
+    Route::get('/reports/customers/{id}', [ReportController::class, 'customerDetails'])->name('admin.reports.customer_details');
+
     // Notifications
     Route::get('/push-notification', [NotificationController::class, 'index'])->name('admin.push_notification');
     Route::post('/push-notification', [NotificationController::class, 'send'])->name('admin.push_notification.send');

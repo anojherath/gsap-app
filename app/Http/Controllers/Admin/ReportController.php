@@ -37,7 +37,7 @@ class ReportController extends Controller
                       ->orWhere('mobile_number', 'like', "%{$search}%");
             })
             ->orderBy('created_at', 'desc')
-            ->get(); // no pagination for reports
+            ->get();
 
         return view('admin.reports.user_report', compact('users', 'search'));
     }
@@ -62,17 +62,17 @@ class ReportController extends Controller
     }
 
     /**
-     * Display the customer report based on your SQL logic
+     * Display the customer report list with pagination
      */
     public function customerReport(Request $request)
     {
-        // Paginate 10 per page
         $results = DB::table('harvest as h')
             ->leftJoin('paddy as p', 'h.paddy_id', '=', 'p.id')
             ->leftJoin('seed_orders as so', 'p.id', '=', 'so.paddy_id')
             ->leftJoin('users as u', 'so.user_id', '=', 'u.id')
             ->leftJoin('fertiliser_order as fo', 'u.id', '=', 'fo.user_id')
             ->select(
+                'h.id as id', // Use id as 'id' to match route param
                 'p.type as harvest_type',
                 'h.creation_date as harvest_date',
                 'u.address as origin',
@@ -83,6 +83,35 @@ class ReportController extends Controller
             ->paginate(10);
 
         return view('admin.reports.customer_report', compact('results'));
+    }
+
+    /**
+     * Show detailed info of a single customer report record (Step 3)
+     */
+    public function customerDetails($id)
+    {
+        $record = DB::table('harvest as h')
+            ->leftJoin('paddy as p', 'h.paddy_id', '=', 'p.id')
+            ->leftJoin('seed_orders as so', 'p.id', '=', 'so.paddy_id')
+            ->leftJoin('users as u', 'so.user_id', '=', 'u.id')
+            ->leftJoin('fertiliser_order as fo', 'u.id', '=', 'fo.user_id')
+            ->select(
+                'h.id as id',
+                'p.type as harvest_type',
+                'h.creation_date as harvest_date',
+                'u.address as origin',
+                'so.creation_date as seed_provider_date',
+                'fo.type as fertilizer_type',
+                'fo.creation_date as fertilizer_applied_date'
+            )
+            ->where('h.id', $id)
+            ->first();
+
+        if (!$record) {
+            abort(404, 'Record not found');
+        }
+
+        return view('admin.reports.customer_report_detail', ['data' => $record]);
     }
 
     /**

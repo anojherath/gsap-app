@@ -32,7 +32,7 @@
                     <th class="px-4 py-2 border text-center">Seed Provided Date</th>
                     <th class="px-4 py-2 border text-center">Fertilizer Type</th>
                     <th class="px-4 py-2 border text-center">Fertilizer Applied Date</th>
-                    <th class="px-4 py-2 border text-center">QR Code</th> {{-- New column --}}
+                    <th class="px-4 py-2 border text-center">QR Code</th> {{-- Updated column --}}
                 </tr>
             </thead>
             <tbody>
@@ -51,16 +51,13 @@
                             {{ $row->fertilizer_applied_date ? \Carbon\Carbon::parse($row->fertilizer_applied_date)->format('Y-m-d H:i:s') : '-' }}
                         </td>
                         <td class="px-4 py-2 border text-center">
-                            {!! QrCode::size(80)->generate(
-                                json_encode([
-                                    'harvest_type' => $row->harvest_type,
-                                    'harvest_date' => $row->harvest_date,
-                                    'origin' => $row->origin,
-                                    'seed_provider_date' => $row->seed_provider_date,
-                                    'fertilizer_type' => $row->fertilizer_type,
-                                    'fertilizer_applied_date' => $row->fertilizer_applied_date,
-                                ])
-                            ) !!}
+                            @php
+                                $detailUrl = route('admin.reports.customer_details', $row->id);
+                            @endphp
+                            {!! QrCode::size(100)->generate($detailUrl) !!}
+                            <div class="mt-1 text-xs text-blue-600 hover:underline">
+                                <a href="{{ $detailUrl }}" target="_blank">View Details</a>
+                            </div>
                         </td>
                     </tr>
                 @empty
