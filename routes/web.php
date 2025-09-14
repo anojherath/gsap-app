@@ -6,11 +6,16 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\SeedOrderController;
+use App\Http\Controllers\SeedProvider\SeedOrderReportController; // ✅ Added
 use App\Http\Controllers\Farmer\SeedOrderController as FarmerSeedOrderController;
 use App\Http\Controllers\FertilizerOrderController;
 use App\Http\Controllers\Farmer\FertilizerOrderController as FarmerFertilizerOrderController;
 use App\Http\Controllers\Farmer\HarvestOrderController;
 use App\Http\Controllers\HarvestBuyer\HarvestOrderController as HarvestBuyerHarvestOrderController;
+use App\Http\Controllers\Farmer\FarmerReportController; 
+use App\Http\Controllers\HarvestBuyer\HarvestBuyerReportController; 
+use App\Http\Controllers\FertilizerProvider\FertilizerOrderReportController;
+
 
 // ------------------------------
 // Public Routes
@@ -43,11 +48,12 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/reports/users', [ReportController::class, 'userReport'])->name('admin.reports.users');
     Route::get('/reports/users/export/excel', [ReportController::class, 'exportExcel'])->name('admin.reports.users.export.excel');
     Route::get('/reports/users/export/pdf', [ReportController::class, 'exportPDF'])->name('admin.reports.users.export.pdf');
+
     Route::get('/reports/customers', [ReportController::class, 'customerReport'])->name('admin.reports.customers');
     Route::get('/reports/customers/export/excel', [ReportController::class, 'exportCustomerExcel'])->name('admin.reports.customers.export.excel');
     Route::get('/reports/customers/export/pdf', [ReportController::class, 'exportCustomerPDF'])->name('admin.reports.customers.export.pdf');
 
-    // New Route for QR code detail page
+    // QR code detail
     Route::get('/reports/customers/{id}', [ReportController::class, 'customerDetails'])->name('admin.reports.customer_details');
 
     // Notifications
@@ -69,6 +75,13 @@ Route::middleware('auth')->prefix('seed-provider')->group(function () {
     Route::put('/seed-orders/{id}', [SeedOrderController::class, 'update'])->name('seed_orders.update');
     Route::delete('/seed-orders/{id}', [SeedOrderController::class, 'destroy'])->name('seed_orders.destroy');
 
+    // Reports: Seed Orders
+    Route::prefix('reports')->name('seed_orders.report.')->group(function () {
+        Route::get('/', [SeedOrderReportController::class, 'index'])->name('index');  // seed_orders.report.index
+        Route::get('/excel', [SeedOrderReportController::class, 'exportExcel'])->name('excel'); // seed_orders.report.excel
+        Route::get('/pdf', [SeedOrderReportController::class, 'exportPDF'])->name('pdf'); // seed_orders.report.pdf
+    });
+
     // Dashboard
     Route::get('/dashboard', function () {
         return view('dashboards.seed_provider');
@@ -86,6 +99,12 @@ Route::middleware('auth')->prefix('fertilizer-provider')->group(function () {
     Route::get('/fertilizer-orders/{id}/edit', [FertilizerOrderController::class, 'edit'])->name('fertilizer_orders.edit');
     Route::put('/fertilizer-orders/{id}', [FertilizerOrderController::class, 'update'])->name('fertilizer_orders.update');
     Route::delete('/fertilizer-orders/{id}', [FertilizerOrderController::class, 'destroy'])->name('fertilizer_orders.destroy');
+
+    Route::prefix('reports')->name('fertilizer_orders.report.')->group(function () {
+    Route::get('/fertilizer-orders', [FertilizerOrderReportController::class, 'index'])->name('index');
+    Route::get('/fertilizer-orders/excel', [FertilizerOrderReportController::class, 'exportExcel'])->name('excel');
+    Route::get('/fertilizer-orders/pdf', [FertilizerOrderReportController::class, 'exportPDF'])->name('pdf');
+    });
 
     // Dashboard
     Route::get('/dashboard', function () {
@@ -121,18 +140,45 @@ Route::middleware('auth')->prefix('farmer')->group(function () {
     Route::get('/harvest-orders/rejected', [HarvestOrderController::class, 'rejected'])->name('farmer.harvest_orders.rejected');
     Route::get('/harvest-orders/create', [HarvestOrderController::class, 'create'])->name('farmer.harvest_orders.create');
     Route::post('/harvest-orders', [HarvestOrderController::class, 'store'])->name('farmer.harvest_orders.store');
-
-    // Add Edit, Update & Delete for rejected harvest orders
     Route::get('/harvest-orders/{id}/edit', [HarvestOrderController::class, 'edit'])->name('farmer.harvest_orders.edit');
     Route::put('/harvest-orders/{id}', [HarvestOrderController::class, 'update'])->name('farmer.harvest_orders.update');
     Route::delete('/harvest-orders/{id}', [HarvestOrderController::class, 'destroy'])->name('farmer.harvest_orders.destroy');
+
+    // ✅ Farmer Reports
+    Route::prefix('reports')->name('farmer.reports.')->group(function () {
+        Route::get('/', [FarmerReportController::class, 'index'])->name('index');
+
+        // Harvest Orders Report
+        Route::get('/harvest-orders', [FarmerReportController::class, 'harvestOrders'])->name('harvest_orders');
+        Route::get('/harvest-orders/export/pdf', [FarmerReportController::class, 'exportHarvestOrdersPDF'])->name('harvest_orders.pdf');
+        Route::get('/harvest-orders/export/excel', [FarmerReportController::class, 'exportHarvestOrdersExcel'])->name('harvest_orders.excel');
+
+        // Seed Orders Report
+        Route::get('/seed-orders', [FarmerReportController::class, 'seedOrders'])->name('seed_orders');
+        Route::get('/seed-orders/export/pdf', [FarmerReportController::class, 'exportSeedOrdersPDF'])->name('seed_orders.pdf');
+        Route::get('/seed-orders/export/excel', [FarmerReportController::class, 'exportSeedOrdersExcel'])->name('seed_orders.excel');
+
+        // Fertilizer Orders Report
+        Route::get('/fertilizer-orders', [FarmerReportController::class, 'fertilizerOrders'])->name('fertilizer_orders');
+        Route::get('/fertilizer-orders/export/pdf', [FarmerReportController::class, 'exportFertilizerOrdersPDF'])->name('fertilizer_orders.pdf');
+        Route::get('/fertilizer-orders/export/excel', [FarmerReportController::class, 'exportFertilizerOrdersExcel'])->name('fertilizer_orders.excel');
+    });
 });
 
 // ------------------------------
-// Harvest Buyer Routes (NEW)
+// Harvest Buyer Routes
 // ------------------------------
 Route::middleware('auth')->prefix('harvest-buyer')->group(function () {
+    // Orders
     Route::get('/orders', [HarvestBuyerHarvestOrderController::class, 'index'])->name('harvest_buyer.orders.index');
     Route::post('/orders/{id}/accept', [HarvestBuyerHarvestOrderController::class, 'accept'])->name('buyer.harvest_orders.accept');
     Route::post('/orders/{id}/reject', [HarvestBuyerHarvestOrderController::class, 'reject'])->name('buyer.harvest_orders.reject');
+
+    // ✅ Harvest Buyer Reports
+    Route::prefix('reports')->name('harvest_buyer.reports.')->group(function () {
+        Route::get('/customers', [HarvestBuyerReportController::class, 'customersReport'])->name('customers');
+        Route::get('/customers/export/excel', [HarvestBuyerReportController::class, 'exportExcel'])->name('customers.export.excel');
+        Route::get('/customers/export/pdf', [HarvestBuyerReportController::class, 'exportPDF'])->name('customers.export.pdf');
+        Route::get('/customers/{id}', [HarvestBuyerReportController::class, 'customerDetails'])->name('customer_details');
+    });
 });

@@ -27,7 +27,7 @@
         <!-- Navigation -->
         <nav class="flex flex-col space-y-3 text-sm font-medium">
             <a href="{{ route('fertilizer_orders.index') }}" class="hover:bg-gray-300 px-3 py-2 rounded transition">Fertilizer Order</a>
-            <a href="#" class="hover:bg-gray-300 px-3 py-2 rounded transition">Reports</a>
+            <a href="{{ route('fertilizer_orders.report.index') }}" class="hover:bg-gray-300 px-3 py-2 rounded transition">Reports</a>
         </nav>
     </aside>
 

@@ -1,7 +1,7 @@
 @extends('dashboards.farmer')
 
 @section('content')
-    <h2 class="text-xl font-bold mb-4">Harvest Orders</h2>
+    <h2 class="text-xl font-bold mb-4">Provided Harvest Orders</h2>
 
     @if(session('success'))
         <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
@@ -16,8 +16,8 @@
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
-                placeholder="Search..."
-                class="border rounded px-3 py-2 w-1/3"
+                placeholder="Search by Buyer Name, Company, Paddy Type or Quantity..."
+                class="border rounded px-3 py-2 w-1/1"
             />
             <button
                 type="submit"
@@ -48,6 +48,7 @@
             <thead>
                 <tr class="bg-gray-300">
                     <th class="border px-4 py-2">Harvest Buyer</th>
+                    <th class="border px-4 py-2">Company Name</th> <!-- Added column -->
                     <th class="border px-4 py-2">Paddy Type</th>
                     <th class="border px-4 py-2">Quantity</th>
                     <th class="border px-4 py-2">Field Name</th>
@@ -58,12 +59,21 @@
             <tbody>
                 @foreach($orders as $order)
                     <tr>
+                        <!-- Harvest Buyer -->
                         <td class="border px-4 py-2">
                             {{ $order->buyer ? $order->buyer->first_name . ' ' . $order->buyer->last_name : '-' }}
                         </td>
+
+                        <!-- Company Name -->
+                        <td class="border px-4 py-2">
+                            {{ $order->buyer->company_name ?? '-' }}
+                        </td>
+
+                        <!-- Paddy Type -->
                         <td class="border px-4 py-2">
                             {{ $order->paddy->type ?? $order->paddy->name ?? '-' }}
                         </td>
+
                         <td class="border px-4 py-2">{{ $order->qty }}</td>
                         <td class="border px-4 py-2">{{ $order->field->name ?? '-' }}</td>
                         <td class="border px-4 py-2">{{ $order->creation_date }}</td>
@@ -87,7 +97,7 @@
 
         <!-- Pagination -->
         <div class="mt-4">
-            {{ $orders->withQueryString()->links() }}
+            {{ $orders->appends(['search' => request('search')])->links() }}
         </div>
     @else
         <p>No harvest orders found.</p>

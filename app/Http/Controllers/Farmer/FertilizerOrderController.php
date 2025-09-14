@@ -13,8 +13,8 @@ class FertilizerOrderController extends Controller
     {
         $farmerId = Auth::id();
 
-        // Base query with eager loading of related user (fertilizer provider)
-        $query = FertilizerOrder::with(['user'])  // Assuming 'user' is the fertilizer provider
+        // Base query with eager loading of fertilizer provider
+        $query = FertilizerOrder::with(['fertilizerProvider'])
             ->where('user_id', $farmerId)
             ->orderBy('creation_date', 'desc');
 
@@ -24,12 +24,12 @@ class FertilizerOrderController extends Controller
 
             $query->where(function ($q) use ($search) {
                 $q->where('type', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($u) use ($search) {
+                  ->orWhere('qty', 'like', "%{$search}%")
+                  ->orWhereHas('fertilizerProvider', function ($u) use ($search) {
                       $u->where('company_name', 'like', "%{$search}%")
                         ->orWhere('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%");
-                  })
-                  ->orWhere('qty', 'like', "%{$search}%");
+                  });
             });
         }
 

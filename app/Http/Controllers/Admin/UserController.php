@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -21,10 +20,16 @@ class UserController extends Controller
 
         $users = User::with('userType')
             ->when($search, function ($query, $search) {
-                $query->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('nic', 'like', "%{$search}%")
-                    ->orWhere('mobile_number', 'like', "%{$search}%");
+                $query->where(function($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                      ->orWhere('last_name', 'like', "%{$search}%")
+                      ->orWhere('company_name', 'like', "%{$search}%") // Search by company
+                      ->orWhere('nic', 'like', "%{$search}%")
+                      ->orWhere('mobile_number', 'like', "%{$search}%")
+                      ->orWhereHas('userType', function ($q) use ($search) { // Search by user type
+                          $q->where('user_type', 'like', "%{$search}%");
+                      });
+                });
             })
             ->orderBy('created_at', 'desc')
             ->paginate(10);

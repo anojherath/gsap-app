@@ -9,7 +9,7 @@
             type="text"
             name="search"
             value="{{ request('search') }}"
-            placeholder="Search by fertilizer type, quantity, provider..."
+            placeholder="Search by Provider Name, Company Name, Fertilizer Type or Quantity..."
             class="border rounded px-3 py-2 w-1/3"
         />
         <button type="submit" class="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800">
@@ -21,7 +21,8 @@
         <table class="w-full table-auto border rounded-lg overflow-hidden shadow">
             <thead>
                 <tr class="bg-gray-300">
-                    <th class="border px-4 py-2">Provider</th>
+                    <th class="border px-4 py-2">Fertilizer Provider</th>
+                    <th class="border px-4 py-2">Company Name</th>
                     <th class="border px-4 py-2">Fertilizer Type</th>
                     <th class="border px-4 py-2">Quantity</th>
                     <th class="border px-4 py-2">Date</th>
@@ -32,14 +33,28 @@
             <tbody>
                 @foreach($fertilizerOrders as $order)
                     <tr>
+                        <!-- Provider Name -->
                         <td class="border px-4 py-2">
-                            {{ $order->user->company_name ?? ($order->user->first_name . ' ' . $order->user->last_name) ?? 'N/A' }}
+                            {{ $order->fertilizerProvider->first_name ?? '' }} {{ $order->fertilizerProvider->last_name ?? '' }}
                         </td>
+
+                        <!-- Company Name -->
+                        <td class="border px-4 py-2">
+                            {{ $order->fertilizerProvider->company_name ?? 'N/A' }}
+                        </td>
+
+                        <!-- Fertilizer Type -->
                         <td class="border px-4 py-2">{{ $order->type }}</td>
+
+                        <!-- Quantity -->
                         <td class="border px-4 py-2">{{ $order->qty }}</td>
+
+                        <!-- Date -->
                         <td class="border px-4 py-2">
                             {{ \Carbon\Carbon::parse($order->creation_date)->format('Y-m-d H:i:s') }}
                         </td>
+
+                        <!-- Status -->
                         <td class="border px-4 py-2">
                             @if (is_null($order->farmer_confirmed))
                                 <span class="text-yellow-600 font-semibold">Pending</span>
@@ -49,6 +64,8 @@
                                 <span class="text-red-600 font-semibold">Rejected</span>
                             @endif
                         </td>
+
+                        <!-- Actions -->
                         <td class="border px-4 py-2">
                             @if (is_null($order->farmer_confirmed))
                                 <form action="{{ route('farmer.fertilizer_orders.confirm', $order->id) }}" method="POST" class="inline-block">

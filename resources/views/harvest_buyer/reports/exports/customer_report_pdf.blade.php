@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Customer Report - Admin's View</title>
+    <title>Customer Report - Harvest Buyer’s View</title>
     <style>
         body { 
             font-family: DejaVu Sans, sans-serif; 
@@ -28,7 +28,7 @@
     </style>
 </head>
 <body>
-    <h2>Customer Report - Admin's View</h2>
+    <h2>Customer Report - Harvest Buyer’s View</h2>
 
     <table>
         <thead>
@@ -53,7 +53,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="text-center">No records found.</td>
+                    <td colspan="6">No records found.</td>
                 </tr>
             @endforelse
         </tbody>

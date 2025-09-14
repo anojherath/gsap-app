@@ -9,7 +9,7 @@
             type="text"
             name="search"
             value="{{ request('search') }}"
-            placeholder="Search by paddy type, quantity, provider..."
+            placeholder="Search by Provider Name, Company, Paddy Type or Quantity..."
             class="border rounded px-3 py-2 w-1/3"
         />
         <button type="submit" class="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800">
@@ -21,7 +21,8 @@
         <table class="w-full table-auto border rounded-lg overflow-hidden shadow">            
             <thead>
                 <tr class="bg-gray-300">
-                    <th class="border px-4 py-2">Provider</th>
+                    <th class="border px-4 py-2">Seed Provider</th>
+                    <th class="border px-4 py-2">Company Name</th>
                     <th class="border px-4 py-2">Paddy Type</th>
                     <th class="border px-4 py-2">Quantity</th>
                     <th class="border px-4 py-2">Date</th>
@@ -32,10 +33,26 @@
             <tbody>
                 @foreach($seedOrders as $order)
                     <tr>
-                        <td class="border px-4 py-2">{{ $order->seedProvider->company_name ?? 'N/A' }}</td>
+                        <!-- Provider Name -->
+                        <td class="border px-4 py-2">
+                            {{ $order->seedProvider->first_name ?? '' }} {{ $order->seedProvider->last_name ?? '' }}
+                        </td>
+
+                        <!-- Company Name -->
+                        <td class="border px-4 py-2">
+                            {{ $order->seedProvider->company_name ?? 'N/A' }}
+                        </td>
+
+                        <!-- Paddy Type -->
                         <td class="border px-4 py-2">{{ $order->paddy->type ?? 'N/A' }}</td>
+
+                        <!-- Quantity -->
                         <td class="border px-4 py-2">{{ $order->qty }}</td>
+
+                        <!-- Date -->
                         <td class="border px-4 py-2">{{ $order->creation_date->format('Y-m-d H:i:s') }}</td>
+
+                        <!-- Status -->
                         <td class="border px-4 py-2">
                             @if (!isset($order->farmer_confirmed) || $order->farmer_confirmed === null)
                                 <span class="text-yellow-600 font-semibold">Pending</span>
@@ -45,6 +62,8 @@
                                 <span class="text-red-600 font-semibold">Rejected</span>
                             @endif
                         </td>
+
+                        <!-- Actions -->
                         <td class="border px-4 py-2">
                             @if (!isset($order->farmer_confirmed) || $order->farmer_confirmed === null)
                                 <form action="{{ route('farmer.seed_orders.confirm', $order->id) }}" method="POST" class="inline-block">
