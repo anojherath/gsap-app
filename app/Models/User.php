@@ -87,4 +87,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Harvest::class, 'user_id');
     }
+
+    /**
+     * Notifications received by this user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id');
+    }
 }

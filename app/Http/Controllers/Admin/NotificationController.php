@@ -7,22 +7,28 @@ use Illuminate\Http\Request;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserType;
-use Illuminate\Support\Facades\Auth; 
 
 class NotificationController extends Controller
 {
     /**
      * Show notification form + sent list.
+     * Supports optional filtering by user type.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch notifications for the logged-in user, latest 20
-        $notifications = Notification::where('user_id', auth()->id())
-                            ->latest()
-                            ->take(20)
-                            ->get();
-
         $userTypes = UserType::all();
+
+        // Fetch latest notifications with user and user type
+        $query = Notification::with('user.userType')->latest();
+
+        // Apply filter by user_type_id if selected
+        if ($request->filled('user_type_id')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('user_type_id', $request->user_type_id);
+            });
+        }
+
+        $notifications = $query->take(50)->get(); // adjust limit if needed
 
         return view('admin.push_notification', compact('notifications', 'userTypes'));
     }
@@ -38,7 +44,6 @@ class NotificationController extends Controller
         ]);
 
         $query = User::query();
-
         if ($request->user_type_id) {
             $query->where('user_type_id', $request->user_type_id);
         }
@@ -52,17 +57,18 @@ class NotificationController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.push_notification')->with('success', 'Notification sent!');
+        return redirect()->route('admin.push_notification')
+                         ->with('success', 'Notification sent!');
     }
 
     /**
-     * Mark notification as read.
+     * Mark notification as read for current user.
      */
     public function markRead($id)
     {
         $notification = Notification::where('id', $id)
-                        ->where('user_id', auth()->id())
-                        ->firstOrFail();
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
 
         if (!$notification->read_at) {
             $notification->read_at = now();
@@ -73,16 +79,10 @@ class NotificationController extends Controller
     }
 
     /**
-     * Delete notification.
+     * Disable deleting notifications to preserve for all users.
      */
     public function destroy($id)
     {
-        $notification = Notification::where('id', $id)
-                        ->where('user_id', auth()->id())
-                        ->firstOrFail();
-
-        $notification->delete();
-
-        return back();
+        return back()->with('error', 'Deleting notifications is disabled to preserve them for all users.');
     }
 }
