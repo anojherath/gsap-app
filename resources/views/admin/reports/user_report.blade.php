@@ -5,21 +5,12 @@
 @section('content')
     <h2 class="text-2xl font-semibold mb-2">User Report</h2>
 
-    <!-- Back Link -->
-    <a href="{{ route('admin.reports') }}" class="text-sm text-gray-600 hover:underline mb-4 inline-block">
-        Back
-    </a>
-
     <!-- Search and Export Buttons -->
     <div class="flex justify-between items-center mb-4">
-        <form method="GET" class="flex space-x-2">
-            <input type="text" name="search" placeholder="Search..." 
-                   value="{{ $search ?? '' }}"
-                   class="px-4 py-2 border rounded w-64">
-            <button type="submit" class="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800">
-                Search
-            </button>
-        </form>
+        <!-- Back Link -->
+        <a href="{{ route('admin.reports') }}" class="text-sm text-gray-600 hover:underline mb-4 inline-block">
+            Back
+        </a>
 
         <div class="flex space-x-2">
             <a href="{{ route('admin.reports.users.export.excel') }}" 
