@@ -16,7 +16,7 @@
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
-                placeholder="Search by Buyer Name, Company, Paddy Type or Quantity..."
+                placeholder="Search by Buyer Name, Company, Paddy Type, Fertilizer Type or Quantity..."
                 class="border rounded px-3 py-2 w-1/1"
             />
             <button
@@ -48,8 +48,9 @@
             <thead>
                 <tr class="bg-gray-300">
                     <th class="border px-4 py-2">Harvest Buyer</th>
-                    <th class="border px-4 py-2">Company Name</th> <!-- Added column -->
+                    <th class="border px-4 py-2">Company Name</th>
                     <th class="border px-4 py-2">Paddy Type</th>
+                    <th class="border px-4 py-2">Fertilizer Type</th>
                     <th class="border px-4 py-2">Quantity</th>
                     <th class="border px-4 py-2">Field Name</th>
                     <th class="border px-4 py-2">Date</th>
@@ -59,27 +60,23 @@
             <tbody>
                 @foreach($orders as $order)
                     <tr>
-                        <!-- Harvest Buyer -->
                         <td class="border px-4 py-2">
                             {{ $order->buyer ? $order->buyer->first_name . ' ' . $order->buyer->last_name : '-' }}
                         </td>
-
-                        <!-- Company Name -->
                         <td class="border px-4 py-2">
                             {{ $order->buyer->company_name ?? '-' }}
                         </td>
-
-                        <!-- Paddy Type -->
                         <td class="border px-4 py-2">
                             {{ $order->paddy->type ?? $order->paddy->name ?? '-' }}
                         </td>
-
+                        <td class="border px-4 py-2">
+                            {{ $order->fertilizer ?? '-' }}
+                        </td>
                         <td class="border px-4 py-2">{{ $order->qty }}</td>
                         <td class="border px-4 py-2">{{ $order->field->name ?? '-' }}</td>
                         <td class="border px-4 py-2">{{ $order->creation_date }}</td>
                         <td class="border px-4 py-2">
                             @php $status = strtolower($order->status); @endphp
-
                             @if($status === 'pending' || is_null($status))
                                 <span class="text-yellow-600 font-semibold">Pending</span>
                             @elseif($status === 'confirmed')
@@ -95,7 +92,6 @@
             </tbody>
         </table>
 
-        <!-- Pagination -->
         <div class="mt-4">
             {{ $orders->appends(['search' => request('search')])->links() }}
         </div>

@@ -8,6 +8,8 @@ use App\Models\Harvest;
 use App\Models\Paddy;
 use App\Models\Field;
 use App\Models\User;
+use App\Models\SeedOrder;
+use App\Models\FertilizerOrder;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -21,20 +23,15 @@ class HarvestOrderController extends Controller
         $harvestOrders = Harvest::whereHas('field', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
-            ->with(['paddy', 'field.fertilizerOrders.fertilizer', 'buyer'])
+            ->with(['paddy', 'field', 'buyer', 'fertilizerOrder']) // ✅ updated relation
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
-                    $q->whereHas('paddy', function ($q2) use ($search) {
-                        $q2->where('type', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('field', function ($q3) use ($search) {
-                        $q3->where('name', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('buyer', function ($q4) use ($search) {
-                        $q4->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%");
-                    })
-                    ->orWhere('status', 'like', "%{$search}%");
+                    $q->whereHas('paddy', fn($q2) => $q2->where('type', 'like', "%{$search}%"))
+                      ->orWhereHas('field', fn($q3) => $q3->where('name', 'like', "%{$search}%"))
+                      ->orWhereHas('buyer', fn($q4) => $q4->where('first_name', 'like', "%{$search}%")
+                                                        ->orWhere('last_name', 'like', "%{$search}%"))
+                      ->orWhereHas('fertilizerOrder', fn($q5) => $q5->where('type', 'like', "%{$search}%"))
+                      ->orWhere('status', 'like', "%{$search}%");
                 });
             })
             ->latest('creation_date')
@@ -50,11 +47,9 @@ class HarvestOrderController extends Controller
     {
         $userId = Auth::id();
 
-        $orders = Harvest::whereHas('field', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+        $orders = Harvest::whereHas('field', fn($query) => $query->where('user_id', $userId))
             ->where('status', 'Rejected')
-            ->with(['buyer', 'paddy', 'field'])
+            ->with(['buyer', 'paddy', 'field', 'fertilizerOrder'])
             ->latest('creation_date')
             ->paginate(10);
 
@@ -65,19 +60,33 @@ class HarvestOrderController extends Controller
 
     public function create()
     {
-        $paddies = Paddy::all();
+        $userId = Auth::id();
 
-        $harvestBuyers = User::whereHas('userType', function ($query) {
-            $query->where('user_type', 'Harvest Buyer');
-        })->get();
+        // ✅ confirmed seed orders
+        $confirmedSeedOrders = SeedOrder::where('user_id', $userId)
+            ->where('farmer_confirmed', true)
+            ->pluck('paddy_id')
+            ->unique();
+        $paddies = Paddy::whereIn('id', $confirmedSeedOrders)->get();
 
-        return view('farmer.harvest_orders.create', compact('paddies', 'harvestBuyers'));
+        // ✅ confirmed fertilizer orders
+        $confirmedFertilizerOrders = FertilizerOrder::where('user_id', $userId)
+            ->where('farmer_confirmed', true)
+            ->pluck('id') // use order IDs
+            ->unique();
+        $fertilizers = FertilizerOrder::whereIn('id', $confirmedFertilizerOrders)->get();
+
+        // ✅ harvest buyers
+        $harvestBuyers = User::whereHas('userType', fn($q) => $q->where('user_type', 'Harvest Buyer'))->get();
+
+        return view('farmer.harvest_orders.create', compact('paddies', 'fertilizers', 'harvestBuyers'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'paddy_id' => 'required|exists:paddy,id',
+            'fertilizer_id' => 'required|exists:fertiliser_order,id', // ✅ updated
             'field_name' => 'required|string|max:255',
             'qty' => 'required|numeric|min:1',
             'buyer_id' => 'required|exists:users,id',
@@ -93,6 +102,7 @@ class HarvestOrderController extends Controller
         Harvest::create([
             'user_id' => $userId,
             'paddy_id' => $request->paddy_id,
+            'fertilizer_id' => $request->fertilizer_id, // points to FertilizerOrder ID
             'field_id' => $field->id,
             'qty' => $request->qty,
             'buyer_id' => $request->buyer_id,
@@ -103,31 +113,36 @@ class HarvestOrderController extends Controller
         return redirect()->route('farmer.harvest_orders.index')->with('success', 'Harvest order added successfully.');
     }
 
-    // -------------- New methods below -----------------
-
     public function edit($id)
     {
         $userId = Auth::id();
 
         $order = Harvest::where('id', $id)
-            ->whereHas('field', function($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+            ->whereHas('field', fn($query) => $query->where('user_id', $userId))
             ->firstOrFail();
 
-        $paddies = Paddy::all();
+        $confirmedSeedOrders = SeedOrder::where('user_id', $userId)
+            ->where('farmer_confirmed', true)
+            ->pluck('paddy_id')
+            ->unique();
+        $paddies = Paddy::whereIn('id', $confirmedSeedOrders)->get();
 
-        $harvestBuyers = User::whereHas('userType', function ($query) {
-            $query->where('user_type', 'Harvest Buyer');
-        })->get();
+        $confirmedFertilizerOrders = FertilizerOrder::where('user_id', $userId)
+            ->where('farmer_confirmed', true)
+            ->pluck('id')
+            ->unique();
+        $fertilizers = FertilizerOrder::whereIn('id', $confirmedFertilizerOrders)->get();
 
-        return view('farmer.harvest_orders.edit', compact('order', 'paddies', 'harvestBuyers'));
+        $harvestBuyers = User::whereHas('userType', fn($q) => $q->where('user_type', 'Harvest Buyer'))->get();
+
+        return view('farmer.harvest_orders.edit', compact('order', 'paddies', 'fertilizers', 'harvestBuyers'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
             'paddy_id' => 'required|exists:paddy,id',
+            'fertilizer_id' => 'required|exists:fertiliser_order,id',
             'field_name' => 'required|string|max:255',
             'qty' => 'required|numeric|min:1',
             'buyer_id' => 'required|exists:users,id',
@@ -136,12 +151,9 @@ class HarvestOrderController extends Controller
         $userId = Auth::id();
 
         $order = Harvest::where('id', $id)
-            ->whereHas('field', function($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+            ->whereHas('field', fn($query) => $query->where('user_id', $userId))
             ->firstOrFail();
 
-        // Update or create the field
         $field = Field::firstOrCreate(
             ['name' => $request->field_name, 'user_id' => $userId],
             ['size' => 0, 'address' => '', 'creation_date' => now()]
@@ -149,10 +161,11 @@ class HarvestOrderController extends Controller
 
         $order->update([
             'paddy_id' => $request->paddy_id,
+            'fertilizer_id' => $request->fertilizer_id,
             'field_id' => $field->id,
             'qty' => $request->qty,
             'buyer_id' => $request->buyer_id,
-            'status' => 'Pending', // Reset status to Pending on update/resubmit
+            'status' => 'Pending',
             'creation_date' => Carbon::now(),
         ]);
 
@@ -164,9 +177,7 @@ class HarvestOrderController extends Controller
         $userId = Auth::id();
 
         $order = Harvest::where('id', $id)
-            ->whereHas('field', function($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+            ->whereHas('field', fn($query) => $query->where('user_id', $userId))
             ->firstOrFail();
 
         $order->delete();

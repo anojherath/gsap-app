@@ -49,6 +49,19 @@
         </select>
     </div>
 
+    {{-- Fertilizer Type --}}
+    <div class="mb-4">
+        <label for="fertilizer_id" class="block text-sm font-medium text-gray-700">Fertilizer Type</label>
+        <select name="fertilizer_id" id="fertilizer_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            <option value="">-- Select Fertilizer Type --</option>
+            @foreach($fertilizers as $fertilizer)
+                <option value="{{ $fertilizer->id }}" {{ $order->fertilizer_id == $fertilizer->id ? 'selected' : '' }}>
+                    {{ $fertilizer->type }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
     {{-- Field Name --}}
     <div class="mb-4">
         <label for="field_name" class="block text-sm font-medium text-gray-700">Field Name</label>

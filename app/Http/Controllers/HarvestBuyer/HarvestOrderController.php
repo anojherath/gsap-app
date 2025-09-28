@@ -14,7 +14,7 @@ class HarvestOrderController extends Controller
         $userId = Auth::id();
 
         $orders = Harvest::where('buyer_id', $userId)
-            ->with(['paddy', 'field', 'buyer', 'user'])
+            ->with(['paddy', 'field', 'buyer', 'user', 'fertilizerOrder']) // ✅ added fertilizerOrder
             ->orderBy('creation_date', 'desc')
             ->paginate(10);
 

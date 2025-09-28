@@ -17,6 +17,7 @@
             <tr class="bg-gray-300">
                 <th class="border px-4 py-2">Farmer</th>
                 <th class="border px-4 py-2">Paddy Type</th>
+                <th class="border px-4 py-2">Fertilizer Type</th> <!-- Added column -->
                 <th class="border px-4 py-2">Quantity</th>
                 <th class="border px-4 py-2">Field</th>
                 <th class="border px-4 py-2">Date</th>
@@ -29,6 +30,7 @@
                 <tr>
                     <td class="border px-4 py-2">{{ $order->user->first_name ?? 'N/A' }} {{ $order->user->last_name ?? '' }}</td>
                     <td class="border px-4 py-2">{{ $order->paddy->type ?? 'N/A' }}</td>
+                    <td class="border px-4 py-2">{{ $order->fertilizerOrder->type ?? 'N/A' }}</td> <!-- Display Fertilizer Type -->
                     <td class="border px-4 py-2">{{ $order->qty }}</td>
                     <td class="border px-4 py-2">{{ $order->field->name ?? 'N/A' }}</td>
                     <td class="border px-4 py-2">{{ \Carbon\Carbon::parse($order->creation_date)->format('Y-m-d H:i') }}</td>
