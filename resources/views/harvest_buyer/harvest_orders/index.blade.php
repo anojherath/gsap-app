@@ -11,13 +11,27 @@
     </div>
 @endif
 
+<!-- Search Form -->
+<form method="GET" action="{{ route('harvest_buyer.orders.index') }}" class="flex items-center mb-4 space-x-2">
+    <input
+        type="text"
+        name="search"
+        value="{{ request('search') }}"
+        placeholder="Search by Farmer, Paddy, Fertilizer, Quantity, or Field..."
+        class="border rounded px-3 py-2 w-1/3"
+    />
+    <button type="submit" class="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800">
+        Search
+    </button>
+</form>
+
 @if($orders->count())
     <table class="w-full table-auto border rounded-lg overflow-hidden shadow">
         <thead>
             <tr class="bg-gray-300">
                 <th class="border px-4 py-2">Farmer</th>
                 <th class="border px-4 py-2">Paddy Type</th>
-                <th class="border px-4 py-2">Fertilizer Type</th> <!-- Added column -->
+                <th class="border px-4 py-2">Fertilizer Type</th>
                 <th class="border px-4 py-2">Quantity</th>
                 <th class="border px-4 py-2">Field</th>
                 <th class="border px-4 py-2">Date</th>
@@ -30,23 +44,24 @@
                 <tr>
                     <td class="border px-4 py-2">{{ $order->user->first_name ?? 'N/A' }} {{ $order->user->last_name ?? '' }}</td>
                     <td class="border px-4 py-2">{{ $order->paddy->type ?? 'N/A' }}</td>
-                    <td class="border px-4 py-2">{{ $order->fertilizerOrder->type ?? 'N/A' }}</td> <!-- Display Fertilizer Type -->
+                    <td class="border px-4 py-2">{{ $order->fertilizerOrder->type ?? 'N/A' }}</td>
                     <td class="border px-4 py-2">{{ $order->qty }}</td>
                     <td class="border px-4 py-2">{{ $order->field->name ?? 'N/A' }}</td>
                     <td class="border px-4 py-2">{{ \Carbon\Carbon::parse($order->creation_date)->format('Y-m-d H:i') }}</td>
                     <td class="border px-4 py-2">
-                        @if ($order->status === 'Pending')
+                        @php $status = strtolower($order->status); @endphp
+                        @if($status === 'pending' || is_null($status))
                             <span class="text-yellow-600 font-semibold">Pending</span>
-                        @elseif ($order->status === 'Confirmed')
+                        @elseif($status === 'confirmed' || $status === 'accepted')
                             <span class="text-green-600 font-semibold">Confirmed</span>
-                        @elseif ($order->status === 'Rejected')
+                        @elseif($status === 'rejected')
                             <span class="text-red-600 font-semibold">Rejected</span>
                         @else
-                            <span>{{ $order->status }}</span>
+                            <span>{{ ucfirst($order->status) }}</span>
                         @endif
                     </td>
                     <td class="border px-4 py-2 whitespace-nowrap">
-                        @if($order->status === 'Pending')
+                        @if($status === 'pending')
                             <form method="POST" action="{{ route('buyer.harvest_orders.accept', $order->id) }}" class="inline-block">
                                 @csrf
                                 <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
@@ -69,6 +84,7 @@
         </tbody>
     </table>
 
+    <!-- Pagination -->
     <div class="mt-4">
         {{ $orders->appends(['search' => request('search')])->links() }}
     </div>
