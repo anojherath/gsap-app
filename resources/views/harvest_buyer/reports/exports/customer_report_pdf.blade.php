@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Confirmed Harvest Orders Report</title>
+    <title>End Product Life Cycle Details Report - Harvest Buyer's View</title>
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
         table { border-collapse: collapse; width: 100%; margin-top: 20px; }
@@ -12,7 +12,7 @@
     </style>
 </head>
 <body>
-    <h2>Confirmed Harvest Orders Report</h2>
+    <h2>End Product Life Cycle Details Report - Harvest Buyer's View</h2>
 
     <table>
         <thead>

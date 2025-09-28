@@ -3,7 +3,7 @@
 @section('title', 'End Product Details')
 
 @section('content')
-    <h2 class="text-2xl font-semibold mb-2">End Product Details</h2>
+    <h2 class="text-2xl font-semibold mb-2">Product Life Cycle Details</h2>
 
     <!-- Search and Export Buttons -->
     <div class="flex justify-between items-center mb-4">

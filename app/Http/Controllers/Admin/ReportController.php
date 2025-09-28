@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Harvest;
+use App\Models\SeedOrder;
+use App\Models\FertilizerOrder;
 use App\Exports\UsersExport;
 use App\Exports\CustomerReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -62,56 +63,85 @@ class ReportController extends Controller
     }
 
     /**
-     * Display the customer report list with pagination
+     * Display the customer report list with search, pagination, and latest seed/fertilizer dates
      */
     public function customerReport(Request $request)
     {
-        $results = DB::table('harvest as h')
-            ->leftJoin('paddy as p', 'h.paddy_id', '=', 'p.id')
-            ->leftJoin('seed_orders as so', 'p.id', '=', 'so.paddy_id')
-            ->leftJoin('users as u', 'so.user_id', '=', 'u.id')
-            ->leftJoin('fertiliser_order as fo', 'u.id', '=', 'fo.user_id')
-            ->select(
-                'h.id as id', // Use id as 'id' to match route param
-                'p.type as harvest_type',
-                'h.creation_date as harvest_date',
-                'u.address as origin',
-                'so.creation_date as seed_provider_date',
-                'fo.type as fertilizer_type',
-                'fo.creation_date as fertilizer_applied_date'
-            )
-            ->paginate(10);
+        $search = $request->input('search');
+
+        $query = Harvest::with(['paddy', 'field', 'fertilizerOrder', 'user'])
+            ->whereIn('status', ['confirmed', 'accepted']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('paddy', fn($q) => $q->where('type', 'like', "%{$search}%"))
+                  ->orWhereHas('field', fn($q) => $q->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('fertilizerOrder', fn($q) => $q->where('type', 'like', "%{$search}%"));
+            });
+        }
+
+        $results = $query->orderBy('creation_date', 'desc')->paginate(10);
+
+        // Attach latest fertilizer & seed dates
+        foreach ($results as $order) {
+            $farmerId = $order->user_id;
+            $fertilizerType = optional($order->fertilizerOrder)->type;
+            $paddyType = optional($order->paddy)->type;
+
+            $latestFertilizer = FertilizerOrder::where('user_id', $farmerId)
+                ->where('type', $fertilizerType)
+                ->whereNotNull('farmer_confirmed')
+                ->orderBy('creation_date', 'desc')
+                ->first();
+            $order->latest_fertilizer_date = $latestFertilizer ? $latestFertilizer->creation_date : null;
+
+            $latestSeed = SeedOrder::where('user_id', $farmerId)
+                ->whereHas('paddy', fn($q) => $q->where('type', $paddyType))
+                ->whereNotNull('farmer_confirmed')
+                ->orderBy('creation_date', 'desc')
+                ->first();
+            $order->latest_seed_date = $latestSeed ? $latestSeed->creation_date : null;
+        }
 
         return view('admin.reports.customer_report', compact('results'));
     }
 
     /**
-     * Show detailed info of a single customer report record (Step 3)
+     * Show detailed info of a single customer report record
      */
     public function customerDetails($id)
     {
-        $record = DB::table('harvest as h')
-            ->leftJoin('paddy as p', 'h.paddy_id', '=', 'p.id')
-            ->leftJoin('seed_orders as so', 'p.id', '=', 'so.paddy_id')
-            ->leftJoin('users as u', 'so.user_id', '=', 'u.id')
-            ->leftJoin('fertiliser_order as fo', 'u.id', '=', 'fo.user_id')
-            ->select(
-                'h.id as id',
-                'p.type as harvest_type',
-                'h.creation_date as harvest_date',
-                'u.address as origin',
-                'so.creation_date as seed_provider_date',
-                'fo.type as fertilizer_type',
-                'fo.creation_date as fertilizer_applied_date'
-            )
-            ->where('h.id', $id)
+        $order = Harvest::with(['paddy', 'field', 'fertilizerOrder', 'user'])->findOrFail($id);
+
+        $farmerId = $order->user_id;
+        $fertilizerType = optional($order->fertilizerOrder)->type;
+        $paddyType = optional($order->paddy)->type;
+
+        $latestFertilizer = FertilizerOrder::where('user_id', $farmerId)
+            ->where('type', $fertilizerType)
+            ->whereNotNull('farmer_confirmed')
+            ->orderBy('creation_date', 'desc')
             ->first();
+        $latestFertilizerDate = $latestFertilizer ? $latestFertilizer->creation_date : null;
 
-        if (!$record) {
-            abort(404, 'Record not found');
-        }
+        $latestSeed = SeedOrder::where('user_id', $farmerId)
+            ->whereHas('paddy', fn($q) => $q->where('type', $paddyType))
+            ->whereNotNull('farmer_confirmed')
+            ->orderBy('creation_date', 'desc')
+            ->first();
+        $latestSeedDate = $latestSeed ? $latestSeed->creation_date : null;
 
-        return view('admin.reports.customer_report_detail', ['data' => $record]);
+        $data = (object)[
+            'harvest_type' => optional($order->paddy)->type ?? '-',
+            'field' => optional($order->field)->name ?? '-',
+            'harvest_date' => $order->creation_date,
+            'seed_provider_date' => $latestSeedDate,
+            'fertilizer_type' => $fertilizerType ?? '-',
+            'fertilizer_applied_date' => $latestFertilizerDate,
+            'origin' => $order->origin ?? '-',
+        ];
+
+        return view('admin.reports.customer_report_detail', compact('data'));
     }
 
     /**
@@ -119,7 +149,31 @@ class ReportController extends Controller
      */
     public function exportCustomerExcel()
     {
-        return Excel::download(new CustomerReportExport, 'customer_report.xlsx');
+        $harvests = Harvest::with(['paddy', 'field', 'fertilizerOrder', 'user'])
+            ->whereIn('status', ['confirmed', 'accepted'])
+            ->get();
+
+        foreach ($harvests as $order) {
+            $farmerId = $order->user_id;
+            $fertilizerType = optional($order->fertilizerOrder)->type;
+            $paddyType = optional($order->paddy)->type;
+
+            $latestFertilizer = FertilizerOrder::where('user_id', $farmerId)
+                ->where('type', $fertilizerType)
+                ->whereNotNull('farmer_confirmed')
+                ->orderBy('creation_date', 'desc')
+                ->first();
+            $order->latest_fertilizer_date = $latestFertilizer ? $latestFertilizer->creation_date : null;
+
+            $latestSeed = SeedOrder::where('user_id', $farmerId)
+                ->whereHas('paddy', fn($q) => $q->where('type', $paddyType))
+                ->whereNotNull('farmer_confirmed')
+                ->orderBy('creation_date', 'desc')
+                ->first();
+            $order->latest_seed_date = $latestSeed ? $latestSeed->creation_date : null;
+        }
+
+        return Excel::download(new \App\Exports\HarvestBuyerReportExport($harvests), 'confirmed_harvests.xlsx');
     }
 
     /**
@@ -127,22 +181,31 @@ class ReportController extends Controller
      */
     public function exportCustomerPDF()
     {
-        $data = DB::table('harvest as h')
-            ->leftJoin('paddy as p', 'h.paddy_id', '=', 'p.id')
-            ->leftJoin('seed_orders as so', 'p.id', '=', 'so.paddy_id')
-            ->leftJoin('users as u', 'so.user_id', '=', 'u.id')
-            ->leftJoin('fertiliser_order as fo', 'u.id', '=', 'fo.user_id')
-            ->select(
-                'p.type as harvest_type',
-                'h.creation_date as harvest_date',
-                'u.address as origin',
-                'so.creation_date as seed_provider_date',
-                'fo.type as fertilizer_type',
-                'fo.creation_date as fertilizer_applied_date'
-            )
+        $harvests = Harvest::with(['paddy', 'field', 'fertilizerOrder', 'user'])
+            ->whereIn('status', ['confirmed', 'accepted'])
             ->get();
 
-        $pdf = PDF::loadView('admin.reports.customer_report_pdf', compact('data'));
-        return $pdf->download('customer_report.pdf');
+        foreach ($harvests as $order) {
+            $farmerId = $order->user_id;
+            $fertilizerType = optional($order->fertilizerOrder)->type;
+            $paddyType = optional($order->paddy)->type;
+
+            $latestFertilizer = FertilizerOrder::where('user_id', $farmerId)
+                ->where('type', $fertilizerType)
+                ->whereNotNull('farmer_confirmed')
+                ->orderBy('creation_date', 'desc')
+                ->first();
+            $order->latest_fertilizer_date = $latestFertilizer ? $latestFertilizer->creation_date : null;
+
+            $latestSeed = SeedOrder::where('user_id', $farmerId)
+                ->whereHas('paddy', fn($q) => $q->where('type', $paddyType))
+                ->whereNotNull('farmer_confirmed')
+                ->orderBy('creation_date', 'desc')
+                ->first();
+            $order->latest_seed_date = $latestSeed ? $latestSeed->creation_date : null;
+        }
+
+        $pdf = PDF::loadView('admin.reports.customer_report_pdf', compact('harvests'));
+        return $pdf->download('confirmed_harvests.pdf');
     }
 }

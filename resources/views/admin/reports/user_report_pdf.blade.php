@@ -36,11 +36,11 @@
                 <th>Name</th>
                 <th>Company Name</th>
                 <th>NIC</th>
-                <th>Mobile</th>
+                <th>Mobile No.</th>
                 <th>Address</th>
-                <th>Type</th>
+                <th>User Type</th>
                 <th>Reg. Number</th>
-                <th>Created Date</th>
+                <th>Created Date & Time</th>
             </tr>
         </thead>
         <tbody>

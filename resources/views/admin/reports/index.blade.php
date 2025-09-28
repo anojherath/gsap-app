@@ -12,8 +12,8 @@
 
         <a href="{{ route('admin.reports.customers') }}" 
            class="p-6 bg-white shadow rounded-lg hover:bg-gray-100 transition text-center">
-            <h3 class="text-lg font-semibold">Customer Report</h3>
-            <p class="text-gray-500 text-sm mt-2">View detailed customer harvest and order info</p>
+            <h3 class="text-lg font-semibold">Product Life Cycle Report</h3>
+            <p class="text-gray-500 text-sm mt-2">View detailed product life cycle info</p>
         </a>
     </div>
 @endsection
